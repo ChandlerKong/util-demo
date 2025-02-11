@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: demo
+
+server:
+  port: 9527
+  servlet:
+    context-path: /${spring.application.name}
+  tomcat:
+    uri-encoding: UTF-8
+
+logging:
+  level:
+    com.demo: debug
+
+
