@@ -5,7 +5,6 @@
   <groupId>com.demo</groupId>
   <artifactId>util-demo</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
   <name>util-demo</name>
 
 
@@ -20,6 +19,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <finalName>${project.artifactId}-${maven.build.timestamp}</finalName>
   </properties>
 
   <dependencies>
@@ -60,7 +60,7 @@
     <dependency>
       <groupId>com.aspose</groupId>
       <artifactId>aspose-words</artifactId>
-      <version>${aspose-words.version}</version>
+      <version>15.8.0</version>
       <scope>system</scope>
       <systemPath>${project.basedir}/src/main/resources/lib/aspose-words-15.8.0-jdk16.jar</systemPath>
     </dependency>
@@ -72,4 +72,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
 </project>
