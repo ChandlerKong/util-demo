@@ -18,12 +18,6 @@ public class SetWordTemplate {
     private final static String[] FONT_PATHS = {"fonts/Songti.ttc"};
 
     public static byte[] set(ParamTemplate paramTemplate) {
-        String fontPath = "";
-        if (CollectionUtils.isEmpty(paramTemplate.getFontsPath())) {
-            fontPath = copyTempFileFont(FONT_PATHS);
-        } else {
-            fontPath = copyTempFileFont(paramTemplate.getFontsPath().toArray(new String[0]));
-        }
         Map<String, Object> params = new HashMap<>();
         params.putAll(paramTemplate.getParams());
         LoopRowTableRenderPolicy hackLoopTableRenderPolicy = new LoopRowTableRenderPolicy();
@@ -54,6 +48,12 @@ public class SetWordTemplate {
                 return setResult(path);
             }
             //转pdf导出
+            String fontPath = "";
+            if (CollectionUtils.isEmpty(paramTemplate.getFontsPath())) {
+                fontPath = copyTempFileFont(FONT_PATHS);
+            } else {
+                fontPath = copyTempFileFont(paramTemplate.getFontsPath().toArray(new String[0]));
+            }
             String pdfPath = FileUtils.getTempDirectoryPath() + System.currentTimeMillis() + ".pdf";
             AsposeUtil.wordToPdf(path,pdfPath,fontPath);
             return setResult(pdfPath);

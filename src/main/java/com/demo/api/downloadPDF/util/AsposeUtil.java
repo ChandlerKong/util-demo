@@ -35,7 +35,7 @@ public class AsposeUtil {
         // 获取许可证
         getLicense();
         // 设置字体文件夹
-//        FontSettings.setFontsFolder(fontPath,false);
+        FontSettings.setFontsFolder(fontPath,false);
         // 加载 Word 文档
         Document doc = new Document(wordPath);
         // 设置 PdfSaveOptions
