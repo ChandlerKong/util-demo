@@ -1,22 +1,19 @@
 package com.demo.api.downloadPDF.service;
 
-import com.deepoove.poi.XWPFTemplate;
-import com.deepoove.poi.config.Configure;
-import com.deepoove.poi.config.ConfigureBuilder;
-import com.deepoove.poi.data.PictureRenderData;
-import com.deepoove.poi.plugin.table.LoopRowTableRenderPolicy;
-import com.demo.api.downloadPDF.util.*;
-import lombok.Data;
+import com.demo.api.downloadPDF.util.ImageTemplate;
+import com.demo.api.downloadPDF.util.ParamTemplate;
+import com.demo.api.downloadPDF.util.RandomImageGenerator;
+import com.demo.api.downloadPDF.util.SetWordTemplate;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 
 @Service
