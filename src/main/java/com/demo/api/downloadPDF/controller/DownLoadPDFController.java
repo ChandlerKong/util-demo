@@ -21,6 +21,6 @@ public class DownLoadPDFController {
 
     @PostMapping()
     public void download(HttpServletResponse response) throws IOException {
-        downLoadPDFService.download(response);
+        downLoadPDFService.downloadDemo(response);
     }
 }

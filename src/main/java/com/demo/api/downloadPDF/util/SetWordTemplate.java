@@ -10,16 +10,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
 public class SetWordTemplate {
     private final static String[] FONT_PATHS = {"fonts/Songti.ttc"};
 
-    public byte[] set(ParamTemplate paramTemplate) {
+    public static byte[] set(ParamTemplate paramTemplate) {
         String fontPath = "";
         if (CollectionUtils.isEmpty(paramTemplate.getFontsPath())) {
             fontPath = copyTempFileFont(FONT_PATHS);
@@ -46,21 +44,35 @@ public class SetWordTemplate {
             });
         }
         String path = copyTempFile(paramTemplate.getTemplatePath());
-        try {
-            try (FileOutputStream fos = new FileOutputStream(path);
-                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                 XWPFTemplate template = XWPFTemplate.compile(path, config).render(params)) {
-                template.write(fos);
-                byte[] byteArray = byteArrayOutputStream.toByteArray();
-                return byteArray; // 返回文件的字节数组
-            } catch (IOException e) {
-                log.error("数据写入失败:{}", e.getMessage());
-                throw new RuntimeException("招标数据写入失败");
+        XWPFTemplate template = XWPFTemplate.compile(path, config).render(params);
+        try (FileOutputStream fos = new FileOutputStream(path)) {
+            // 直接将模板内容写入文件
+            template.write(fos);
+            // 确保写入完毕后再读取文件内容
+            fos.flush();  // 确保写入到文件系统
+            // 读取文件内容并返回字节数组
+            try (FileInputStream fis = new FileInputStream(path);
+                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = fis.read(buffer)) != -1) {
+                    byteArrayOutputStream.write(buffer, 0, length);
+                }
+                return byteArrayOutputStream.toByteArray(); // 返回文件的字节数组
             }
+        } catch (Exception e) {
+            throw new RuntimeException("文件流写入失败", e);
         } finally {
+            // 删除临时文件
             File copyFile = new File(path);
             if (copyFile.exists()) {
                 copyFile.delete();
+            }
+            // 关闭模板
+            try {
+                template.close();
+            } catch (IOException e) {
+                throw new RuntimeException("关闭模板时发生错误", e);
             }
         }
     }
@@ -69,8 +81,8 @@ public class SetWordTemplate {
      * 将项目中的模板文件拷贝到根目录下
      * @return
      */
-    private String copyTempFile(String templeFilePath) {
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(templeFilePath)){
+    private static String copyTempFile(String templeFilePath) {
+        try (InputStream inputStream = SetWordTemplate.class.getClassLoader().getResourceAsStream(templeFilePath)){
             File tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()), ".docx");
             FileUtils.copyInputStreamToFile(inputStream, tempFile);
             return tempFile.getPath();
@@ -84,7 +96,7 @@ public class SetWordTemplate {
      * 将项目中的模板文件拷贝
      * @return
      */
-    private String copyTempFileFont(String... fontPath) {
+    private static String copyTempFileFont(String... fontPath) {
         String tempDir = System.getProperty("java.io.tmpdir");
         File fontDir = new File(tempDir, "fonts");
         if (!fontDir.exists()) {
@@ -93,7 +105,7 @@ public class SetWordTemplate {
         for(int i = 0; i < fontPath.length; i++){
             File tempFile = new File(fontDir, new File(fontPath[i]).getName());
             if (!tempFile.exists()) {
-                try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fontPath[i])){
+                try (InputStream inputStream = SetWordTemplate.class.getClassLoader().getResourceAsStream(fontPath[i])){
                     FileUtils.copyInputStreamToFile(inputStream, tempFile);
                 } catch (IOException e) {
                     throw new RuntimeException("字体文件转换失败，请稍候重试");
