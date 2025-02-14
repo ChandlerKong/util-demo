@@ -50,16 +50,13 @@ public class SetWordTemplate {
             template.write(fos);
             // 确保写入完毕后再读取文件内容
             fos.flush();  // 确保写入到文件系统
-            // 读取文件内容并返回字节数组
-            try (FileInputStream fis = new FileInputStream(path);
-                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-                byte[] buffer = new byte[1024];
-                int length;
-                while ((length = fis.read(buffer)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, length);
-                }
-                return byteArrayOutputStream.toByteArray(); // 返回文件的字节数组
+            if(!"pdf".equals(paramTemplate.getResultType())){
+                return setResult(path);
             }
+            //转pdf导出
+            String pdfPath = FileUtils.getTempDirectoryPath() + System.currentTimeMillis() + ".pdf";
+            AsposeUtil.wordToPdf(path,pdfPath,fontPath);
+            return setResult(pdfPath);
         } catch (Exception e) {
             throw new RuntimeException("文件流写入失败", e);
         } finally {
@@ -74,6 +71,22 @@ public class SetWordTemplate {
             } catch (IOException e) {
                 throw new RuntimeException("关闭模板时发生错误", e);
             }
+        }
+    }
+
+    private static byte[] setResult(String path) {
+        try (FileInputStream fis = new FileInputStream(path);
+             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, length);
+            }
+            return byteArrayOutputStream.toByteArray(); // 返回文件的字节数组
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

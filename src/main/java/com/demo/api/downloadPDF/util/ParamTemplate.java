@@ -31,7 +31,7 @@ public class ParamTemplate {
     /**
      * 输出文件类型 默认pdf 支持返回word .docx
      */
-    private String resultType = ".pdf";
+    private String resultType = "pdf";
 
     public ParamTemplate(String templatePath,
                          List<String> fontsPath,

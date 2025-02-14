@@ -54,7 +54,7 @@ public class DownLoadPDFService {
                         DOCS_PATH, Arrays.asList(FONT_PATHS), params, listParams, imageTemplates));
         // 3. 输出到 Response
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=tmp.docx");
+        response.setHeader("Content-Disposition", "attachment; filename=tmp.pdf");
         response.setContentLength(bytes.length);
         try (OutputStream os = response.getOutputStream()) {
             os.write(bytes);
