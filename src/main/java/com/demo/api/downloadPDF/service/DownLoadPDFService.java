@@ -27,7 +27,7 @@ public class DownLoadPDFService {
         params.put("text","测试文字");
         Map<String,List<Object>> listParams = new HashMap<>();
         List<Object> list = new ArrayList<>();
-        for (int i = 0; i< 100; i++){
+        for (int i = 0; i< 10; i++){
             Map<String,String> obj = new HashMap<>();
             obj.put("a","a" + "--" + i);
             obj.put("b","b" + "--" + i);
@@ -36,6 +36,21 @@ public class DownLoadPDFService {
             list.add(obj);
         }
         listParams.put("list",list);
+        // 嵌套list示例 groupList
+        List<Object> groupList = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Map<String, Object> group = new HashMap<>();
+            group.put("name", "分组" + i);
+            List<Object> children = new ArrayList<>();
+            for (int j = 0; j < 2; j++) {
+                Map<String, String> child = new HashMap<>();
+                child.put("item", "子项" + j);
+                children.add(child);
+            }
+            group.put("children", children);
+            groupList.add(group);
+        }
+        listParams.put("groupList", groupList);
         RandomImageGenerator generator = new RandomImageGenerator();
         BufferedImage image = generator.generateRandomImage(200, 200);  // 创建一张500x500的图片
         // 使用 ByteArrayOutputStream 将 BufferedImage 写入
@@ -47,11 +62,11 @@ public class DownLoadPDFService {
         imageTemplates.put("image",new ImageTemplate(50,50,
                 new ByteArrayInputStream(byteArrayOutputStream.toByteArray())));
 
-        byte[] bytes = SetWordTemplate.set(new ParamTemplate(
+        byte[] bytes = SetWordTemplate.generateWordFromTemplate(new ParamTemplate(
                         DOCS_PATH, Arrays.asList(FONT_PATHS), params, listParams, imageTemplates));
         // 3. 输出到 Response
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=tmp.pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=tmp.docx");
         response.setContentLength(bytes.length);
         try (OutputStream os = response.getOutputStream()) {
             os.write(bytes);

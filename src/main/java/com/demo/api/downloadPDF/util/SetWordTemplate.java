@@ -10,12 +10,96 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 public class SetWordTemplate {
     private final static String[] FONT_PATHS = {"fonts/Songti.ttc"};
+
+
+    public static byte[] generateWordFromTemplate(ParamTemplate paramTemplate) {
+        // 1. 构造渲染参数和渲染策略
+        Map<String, Object> params = new HashMap<>();
+        Configure config = buildRenderConfig(paramTemplate, params);
+
+        // 2. 渲染模板 (需要先将模板拷贝 避免污染)
+        String path = copyTempFile(paramTemplate.getTemplatePath());
+        XWPFTemplate template = XWPFTemplate.compile(path, config).render(params);
+
+        // 3. 写入文件 & 返回字节流
+        try (FileOutputStream fos = new FileOutputStream(path)) {
+            template.write(fos);
+            fos.flush(); // 确保写入完毕
+            return Files.readAllBytes(Paths.get(path));
+        } catch (IOException e) {
+            throw new RuntimeException("生成 Word 文件失败", e);
+        } finally {
+            // 清理资源
+            if (template != null) {
+                try {
+                    template.close();
+                } catch (IOException ignored) {}
+            }
+            try {
+                Files.deleteIfExists(Paths.get(path));
+            } catch (IOException ignored) {}
+        }
+    }
+
+
+    /**
+     * 构建渲染配置和参数
+     */
+    private static Configure buildRenderConfig(ParamTemplate paramTemplate, Map<String, Object> params) {
+        LoopRowTableRenderPolicy tablePolicy = new LoopRowTableRenderPolicy();
+        ConfigureBuilder configBuilder = Configure.builder();
+
+        // 普通字段
+        if (paramTemplate.getParams() != null) {
+            params.putAll(paramTemplate.getParams());
+        }
+
+        // List 类型字段绑定策略
+        if (paramTemplate.getListParams() != null && !paramTemplate.getListParams().isEmpty()) {
+            paramTemplate.getListParams().forEach((key, value) -> {
+                configBuilder.bind(key, tablePolicy);
+                params.put(key, value);
+                // 递归绑定嵌套list
+                bindListKeys(value, configBuilder, tablePolicy);
+            });
+        }
+
+        // 图片处理
+        if (paramTemplate.getImageTemplates() != null) {
+            paramTemplate.getImageTemplates().forEach((key, value) -> {
+                PictureRenderData image = new PictureRenderData(
+                        value.getWidth(), value.getHeight(), value.getPictureType(), value.getInput());
+                params.put(key, image);
+            });
+        }
+
+        return configBuilder.build();
+    }
+
+    private static void bindListKeys(Object value, ConfigureBuilder configBuilder, LoopRowTableRenderPolicy tablePolicy) {
+        if (value instanceof List) {
+            for (Object item : (List<?>) value) {
+                if (item instanceof Map) {
+                    for (Map.Entry<?, ?> entry : ((Map<?, ?>) item).entrySet()) {
+                        if (entry.getValue() instanceof List) {
+                            configBuilder.bind(entry.getKey().toString(), tablePolicy);
+                            // 递归绑定
+                            bindListKeys(entry.getValue(), configBuilder, tablePolicy);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     public static byte[] set(ParamTemplate paramTemplate) {
         Map<String, Object> params = new HashMap<>();
