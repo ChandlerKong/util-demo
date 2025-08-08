@@ -71,6 +71,20 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.example</groupId>
+      <artifactId>custom-threadpool-spring-boot-starter</artifactId>
+      <version>1.0.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/src/main/resources/lib/threadpool-spring-boot-starter-1.0.0.jar</systemPath>
+    </dependency>
   </dependencies>
 
   <build>

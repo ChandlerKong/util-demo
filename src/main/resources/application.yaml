@@ -14,3 +14,46 @@ logging:
     com.demo: debug
 
 
+#demo:
+#  name: 大哥
+#  age: 30
+#  enabled: true
+#  tags: java,spring,starter
+#  threshold: 0.75
+#  clazz: java.lang.String
+
+
+demo:
+  name: 大哥
+  age: 30
+  tags:
+    - java
+    - spring
+  metadata:
+    team: backend
+    level: p5
+  address:
+    city: 大连
+    zip: 116000
+
+user:
+  enabled: true
+  roles:
+    - admin
+    - user
+
+app:
+  name: demo-app
+  version: 1.0.0
+  features:
+    - featureA
+    - featureB
+  settings:
+    timeout: 5000
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
