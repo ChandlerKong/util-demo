@@ -1,6 +1,17 @@
 spring:
   application:
     name: demo
+  datasource:
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+    url: jdbc:mysql://localhost:3306/kongxsh?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: root
+
+mybatis-plus:
+  configuration:
+#    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl  # 输出SQL日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 输出SQL日志
+  mapper-locations: classpath:/mapper/**/*.xml  # XML映射文件位置（如果用XML）
 
 server:
   port: 9527
@@ -13,47 +24,10 @@ logging:
   level:
     com.demo: debug
 
-
-#demo:
-#  name: 大哥
-#  age: 30
-#  enabled: true
-#  tags: java,spring,starter
-#  threshold: 0.75
-#  clazz: java.lang.String
-
-
-demo:
-  name: 大哥
-  age: 30
-  tags:
-    - java
-    - spring
-  metadata:
-    team: backend
-    level: p5
-  address:
-    city: 大连
-    zip: 116000
-
-user:
-  enabled: true
-  roles:
-    - admin
-    - user
-
-app:
-  name: demo-app
-  version: 1.0.0
-  features:
-    - featureA
-    - featureB
-  settings:
-    timeout: 5000
-    enabled: true
-
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+
+
